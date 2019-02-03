@@ -1,0 +1,6 @@
+[submodule "humlib"]
+	path = humlib
+	url = https://github.com/craigsapp/humlib.git
+[submodule "midifile"]
+	path = midifile
+	url = https://github.com/craigsapp/midifile.git

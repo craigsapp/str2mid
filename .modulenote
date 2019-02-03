@@ -1,0 +1,2 @@
+#git submodule add -f https://github.com/craigsapp/humlib.git humlib
+#git submodule add -f https://github.com/craigsapp/midifile.git midifile

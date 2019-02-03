@@ -1,0 +1,6 @@
+bin
+.DS_Store
+*.exe
+*.bak
+*.mid
+err
