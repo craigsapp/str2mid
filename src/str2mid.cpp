@@ -19,7 +19,7 @@ using namespace smf;
 
 void processFile             (HumdrumFile& infile, const string filename);
 void convertToMidi           (MidiFile& midifile, HumdrumFile& infile);
-void convertSpineToMidiTrack (MidiFile& mfile, HTp sstart, int track,
+long convertSpineToMidiTrack (MidiFile& mfile, HTp sstart, int track,
                               int channel, vector<int>& attacks,
                               HumdrumFile& infile);
 void insertTempo             (MidiFile& midifile, HumdrumFile& infile);
@@ -28,10 +28,18 @@ void getAttackList           (vector<int>& attacks, HumdrumFile& infile);
 string tie_signifier = "L";
 int tpq = 240;
 int miditype = 0;
+int instrument = 24;
 
 int main(int argc, char** argv) {
 	Options options;
+	options.define("i|instrument=i:24", "MIDI instrument to use as a default");
 	options.process(argc, argv);
+	instrument = options.getInteger("instrument");
+	if (instrument < 0) {
+		instrument = 0;
+	} else if (instrument > 127) {
+		instrument = 127;
+	}
 	HumdrumFile infile;
 	for (int i=1; i<= options.getArgCount(); i++) {
 		infile.read(options.getArg(i));
@@ -80,17 +88,20 @@ void convertToMidi(MidiFile& midifile, HumdrumFile& infile) {
 	if (miditype != 0) {
 		midifile.addTracks(scount);
 	}
-	if (miditype == 0) {
-		midifile.addTimbre(0, 0, 0, 24);
-	}
 	vector<int> attacks;
+	int hasanypc = false;
 	getAttackList(attacks, infile);
 	for (int i=0; i<scount; i++) {
-		if (miditype != 0) {
-			midifile.addTimbre(i+1, 0, i, 24);
+		long pctick = convertSpineToMidiTrack(midifile, strspines[scount - i - 1], i+1, i, attacks, infile);
+		if ((pctick < 0) && (miditype != 0)) {
+			midifile.addTimbre(i+1, 0, i, instrument);
 		}
-		convertSpineToMidiTrack(midifile, strspines[scount - i - 1], i+1, i,
-				attacks, infile);
+		if (pctick >= 0) {
+			hasanypc = true;
+		}
+	}
+	if ((miditype == 0) && (!hasanypc)) {
+		midifile.addTimbre(0, 0, 0, instrument);
 	}
 	insertTempo(midifile, infile);
 	midifile.sortTracks();
@@ -137,8 +148,9 @@ void insertTempo(MidiFile& midifile, HumdrumFile& infile) {
 // convertSpineToMidiTrack --  Channel cannot be 9 or greater than 15.
 //
 
-void convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
+long convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
 		int channel, vector<int>& attacks, HumdrumFile& infile) {
+	long pctick = -1;
 	if (miditype == 0) {
 		track = 0;
 		channel = 0;
@@ -182,6 +194,7 @@ void convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
 				} else {
 					cerr << "UNKNOWN ABSOLUTE TUNING " << current << endl;
 				}
+
 			} else if (current->compare(0, 4, "*CH:") == 0) {
 				// MIDI channel
 				string chan = current->substr(4);
@@ -194,7 +207,35 @@ void convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
 						channel = 15;
 					}
 				}
+
+			} else if (current->compare(0, 5, "*VEL:") == 0) {
+				// Attack velocity channel
+				string vel = current->substr(5);
+				if (hre.search(vel, "^(\\d+)$")) {
+					velocity = hre.getMatchInt(1);
+					if (velocity <= 0) {
+						velocity = 1;
+					} else if (velocity > 127) {
+						velocity = 127;
+					}
+				}
+
+			} else if (current->compare(0, 4, "*PC:") == 0) {
+				// Patch change (instrument change)
+				string pcstring = current->substr(4);
+				if (hre.search(pcstring, "^(\\d+)$")) {
+					int pc = hre.getMatchInt(1);
+					if (pc <= 0) {
+						pc = 0;
+					} else if (pc > 127) {
+						pc = 127;
+					}
+					HumNum pctime = current->getDurationFromStart();
+					pctick = (int)(pctime.getFloat() * tpq + 0.5);
+					mfile.addTimbre(track, pctick, channel, pc);
+				}
 			}
+
 		}
 		if (!current->isData()) {	
 			current = current->getNextToken();
@@ -257,6 +298,7 @@ void convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
 		lastmidinote = 0;
 		lastnote = NULL;
 	}
+	return pctick;
 }
 
 

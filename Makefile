@@ -29,7 +29,10 @@ program:
 install:
 	cp bin/$(PROGRAM) /usr/local/bin/$(PROGRAM)
 
-update:
-	git submodule update --init --recursive
+update: download all
+
+download:
 	git pull
+	git submodule update --init --recursive
+	git submodule foreach "(git checkout master; git pull origin master)"
 
