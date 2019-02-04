@@ -29,4 +29,7 @@ program:
 install:
 	cp bin/$(PROGRAM) /usr/local/bin/$(PROGRAM)
 
+update:
+	git submodule update --init --recursive
+	git pull
 
