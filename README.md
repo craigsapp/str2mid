@@ -81,4 +81,53 @@ To convert the above example to MIDI:
 The file `twinkle.mid` will be created in the current directory.
 
 
+Brief overview of the `**str` syntax
+------------------------------
+
+The `**str` representation is a string
+tablature format that is similar to Humdrum
+[fret](http://www.humdrum.org/Humdrum/representations/fret.rep.html)
+representation,  but for `**str` case, each string is in a separate
+spine, which makes it easier to edit and manipulate the data.  The `**str`
+representation is intended to be roughly equivalent to [ASCII
+Guitar TAB](https://en.wikipedia.org/wiki/ASCII_tab),
+such as used in Guitar Pro and [Ultimate
+Guitar](https://www.ultimate-guitar.com/contribution/help/rubric)
+
+Each string is represented by a different spine (column), starting
+with `**str` and ending with `*-`.  The strings should be in order from
+"lowest" string on the left to "highest" string on the right. Before the
+first notes on a string, the tuning of the open string must be given.
+This is done in the form `*AT:C4`, where `C4` is middle C.  The strings of
+a standard six-string guitar, from lowest to highest string are: `*AT:E2`,
+`*AT:A2`, `*AT:D3`, `*AT:G3`, `*AT:B3`, `*AT:E4`.   MIDI note numbers can
+also be used instead of pitch names, which would be: `*AT:40`, `*AT:45`,
+`*AT:50`, `*AT:55`, `*AT:59`, `*AT:64` for a standard guitars.
+
+Percussion instruments can be specified by setting the tuning to 
+`*AT:0` and using General MIDI Percussion key numbers for the fret
+numbers.  When representing percussion instruments, also set the MIDI 
+channel to 10, using the interpretation `*CH:10`.
+
+To the left of all strings for a particular instrument, a time-line using
+the `**recip` formate needs to be given in order to convert the tablature
+to MIDI with the str2mid program.  Meter and tempo markings (such as
+`*M4/4` and `*MM84` in the above example) should be placed in the tandem
+`**recip` spine, and this sort of information can also be stored in each
+`**str` spine (but the mid2str program will ignore such extract data.
+Similarly the key signature and key designation can be added to the
+`**recip` spine.
+
+Barlines behave similar to the `**kern` representation.
+
+The str2mid program will convert notes with a default loudness of 64.   You
+can also change the loudness of individual strings with an interpretation
+like `*VEL:64`.  The range for `*VEL:` values is 1 to 127 (standard MIDI range).
+
+Ties can be encoded in a manner similar to Humdrum `**kern` data, using
+`[` to start a tie, `_` for the middle note in a tied group and `]`
+for the last note in a tied group.  If a note is not tied, it will be
+ended automatically at the next data line that has a note attack in any
+of the other strings.
+
 
