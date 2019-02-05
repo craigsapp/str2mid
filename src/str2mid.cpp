@@ -268,6 +268,15 @@ long convertSpineToMidiTrack(MidiFile& mfile, HTp sstart, int track,
 		if (current->find(tie_signifier) != std::string::npos) {
 			tieQ = true;
 		}
+		if (current->find('[') != std::string::npos) {
+			// **kern-style tie start
+			tieQ = true;
+		}
+		if (current->find('_') != std::string::npos) {
+			// **kern-style intermedial tie (start for this note to next)
+			tieQ = true;
+		}
+
 		if (!tiednote) {
 			if (lastnote) {
 				HumNum etime = current->getDurationFromStart();
