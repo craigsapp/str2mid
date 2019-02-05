@@ -378,13 +378,14 @@ Count the number of times the E4 string is plucked:
 Plot a histogram of all frets used on all strings:
 
 ```bash
-   $ extractx -i str | serialize | ridx -H | grep -v []_] |\
+   $ extractx -i str twinkle.str | serialize | ridx -H |
+	 sed 's/[]]//g' | grep -v []_] |\
 	 sortcount -v  -T "Frets used" -x "fret number" > plot.html
 ```
 
 Then open plot.html in a web browser to view the plot:
 
-<img width="833" alt="screen shot 2019-02-04 at 10 15 43 pm" src="https://user-images.githubusercontent.com/3487289/52251318-2f163480-28ca-11e9-972f-8fa6a4dd64c6.png">
+<img width="1147" alt="screen shot 2019-02-04 at 10 20 12 pm" src="https://user-images.githubusercontent.com/3487289/52251429-c5e2f100-28ca-11e9-8dfc-6e8dfb0026e0.png">
 
 
 
