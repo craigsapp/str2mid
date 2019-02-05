@@ -1,13 +1,11 @@
-str2mid
-========
+# str2mid #
 
 The str2mid program converts Humdrum files in the
 `**str` format into Standard MIDI Files.  Typically data
 will be converted from ASCII guitar TAB data using
 [gptab2str](https://github.com/craigsapp/humextra/blob/master/scripts/perl/gptab2str).  
 
-Downloading and compiling
--------------------------
+## Downloading and compiling ##
 
 If you have git installed, then in a terminal type the commands:
 
@@ -19,8 +17,7 @@ If you have git installed, then in a terminal type the commands:
    make install     # Copy executable to /usr/local/bin
 ```
 
-Updating 
---------
+## Updating ##
 
 If you want to download the latest version of the code, but have an existing
 installation, then use these commands to update:
@@ -31,8 +28,7 @@ installation, then use these commands to update:
    make install
 ```
 
-Example 
---------
+## Example ##
 
 
 <img width="1054" alt="screen shot 2019-02-04 at 3 55 10 pm" src="https://user-images.githubusercontent.com/3487289/52236495-032c8c00-2895-11e9-95fb-204129240f83.png">
@@ -44,7 +40,7 @@ Example
 !!!SCT: KV 265
 !!!LAR: Sapp, Craig Stuart
 **recip	**str	**str	**str	**str	**str	**str
-*	*AT:E1	*AT:A1	*AT:D2	*AT:G2	*AT:B2	*AT:E3
+*	*AT:E2	*AT:A2	*AT:D3	*AT:G3	*AT:B3	*AT:E4
 *M4/4	*	*	*	*	*	*
 *MM84	*	*	*	*	*	*
 =1	=1	=1	=1	=1	=1	=1
@@ -81,8 +77,7 @@ To convert the above example to MIDI:
 The file `twinkle.mid` will be created in the current directory.
 
 
-Brief overview of the `**str` syntax
-------------------------------
+## Brief overview of the `**str` syntax ##
 
 The `**str` representation is a string
 tablature format that is similar to Humdrum
@@ -129,5 +124,270 @@ Ties can be encoded in a manner similar to Humdrum `**kern` data, using
 for the last note in a tied group.  If a note is not tied, it will be
 ended automatically at the next data line that has a note attack in any
 of the other strings.
+
+
+## Humdrum tool integration ##
+
+The `**str` represetation can work with many [Humdrum
+tools](https://github.com/humdrum-tools/humdrum-tools).  Here are some
+example uses with some of the tools.
+
+### Uniform spacing of lines ###
+
+Use the [timebase](http://www.humdrum.org/Humdrum/commands/timebase.html)
+tool to space out the data lines evenly.  Another tool called
+[minrhy](htt://extras.humdrum.org/man/minrhy) can also be used to 
+calculate the minimum integral rhythmic unit needed for spacing the
+lines without losing any short-duration lines.  For example, running the
+above example data through the minrhy tool will identify 16th notes as the
+shortest note time values (other than grace notes):
+
+```bash
+   $ minrhy twinkle.str
+   16
+```
+
+This value can be used to space every data line so that it represents
+a 16th note duration:
+
+```bash
+   $ timebase -t 16 twinkle.str > twinkle.tb16
+```
+
+The result of the above command:
+
+```
+!!!COM: Mozart, Wolfgang Amadeus
+!!!OTL: Opening of the theme, "Ah, vous dirai-je, Maman"
+!!!CDT: 1778
+!!!SCT: KV 265
+!!!LAR: Sapp, Craig Stuart
+**recip	**str	**str	**str	**str	**str	**str
+*	*AT:E2	*AT:A2	*AT:D3	*AT:G3	*AT:B3	*AT:E4
+*M4/4	*	*	*	*	*	*
+*MM84	*	*	*	*	*	*
+*tb16	*	*	*	*	*	*
+=1	=1	=1	=1	=1	=1	=1
+4	8	.	.	.	.	8
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	10	.	.	8
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	14	.	.	15
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	10	.	.	15
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+=2	=2	=2	=2	=2	=2	=2
+4	.	.	15	.	.	17
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	10	.	.	17
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	14	.	.	15
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	10	.	.	15
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+=3	=3	=3	=3	=3	=3	=3
+4	.	.	12	.	.	13
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	9	.	.	13
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	.	10	.	.	12
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+4	.	12	.	.	.	12
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+=4	=4	=4	=4	=4	=4	=4
+4	.	8	.	.	.	10
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+8.	.	[10	.	.	.	10
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+16	.	10]	.	.	.	12
+2	8	.	.	.	.	8
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+.	.	.	.	.	.	.
+==	==	==	==	==	==	==
+*-	*-	*-	*-	*-	*-	*-
+```
+
+This is similar to Guitar Pro TABS, although they will evenly space
+notes in the minimal time unit on a measure-by-measure basis.
+
+
+### Extracting measures ###
+
+Individual measures can be extracted using the [myank](http://extras.humdrum.org/man/myank) tool, here is an example of extracting meaasures 2 through 3:
+
+```
+!!!COM: Mozart, Wolfgang Amadeus
+!!!OTL: Opening of the theme, "Ah, vous dirai-je, Maman"
+!!!CDT: 1778
+!!!SCT: KV 265
+!!!LAR: Sapp, Craig Stuart
+**recip	**str	**str	**str	**str	**str	**str
+=2-	=2-	=2-	=2-	=2-	=2-	=2-
+4	.	.	15	.	.	17
+4	.	.	10	.	.	17
+4	.	.	14	.	.	15
+4	.	.	10	.	.	15
+=3	=3	=3	=3	=3	=3	=3
+4	.	.	12	.	.	13
+4	.	.	9	.	.	13
+4	.	.	10	.	.	12
+4	.	12	.	.	.	12
+=	=	=	=	=	=	=
+*-	*-	*-	*-	*-	*-	*-
+```
+
+### Removing a string ###
+
+Use the [extract](http://www.humdrum.org/Humdrum/commands/extract.html) or
+[extractx](http://extras.humdrum.org/man/extractx) tool to extract or add
+spines to/from the score.
+
+
+Remove the `**recip` spine by extracting only the `**str` spines:
+
+```bash
+   $ extractx -i str twinkle.str
+```
+
+Results in:
+
+```
+!!!COM: Mozart, Wolfgang Amadeus
+!!!OTL: Opening of the theme, "Ah, vous dirai-je, Maman"
+!!!CDT: 1778
+!!!SCT: KV 265
+!!!LAR: Sapp, Craig Stuart
+**str	**str	**str	**str	**str	**str
+*AT:E2	*AT:A2	*AT:D3	*AT:G3	*AT:B3	*AT:E4
+*	*	*	*	*	*
+*	*	*	*	*	*
+=1	=1	=1	=1	=1	=1
+8	.	.	.	.	8
+.	.	10	.	.	8
+.	.	14	.	.	15
+.	.	10	.	.	15
+=2	=2	=2	=2	=2	=2
+.	.	15	.	.	17
+.	.	10	.	.	17
+.	.	14	.	.	15
+.	.	10	.	.	15
+=3	=3	=3	=3	=3	=3
+.	.	12	.	.	13
+.	.	9	.	.	13
+.	.	10	.	.	12
+.	12	.	.	.	12
+=4	=4	=4	=4	=4	=4
+.	8	.	.	.	10
+.	[10	.	.	.	10
+.	10]	.	.	.	12
+8	.	.	.	.	8
+==	==	==	==	==	==
+*-	*-	*-	*-	*-	*-
+```
+
+Extract the E4 string:
+
+```bash
+   $ extractx -g AT:E4 twinkle.str
+```
+
+```
+!!!COM: Mozart, Wolfgang Amadeus
+!!!OTL: Opening of the theme, "Ah, vous dirai-je, Maman"
+!!!CDT: 1778
+!!!SCT: KV 265
+!!!LAR: Sapp, Craig Stuart
+**str
+*AT:E4
+*
+*
+=1
+8
+8
+15
+15
+=2
+17
+17
+15
+15
+=3
+13
+13
+12
+12
+=4
+10
+10
+12
+8
+==
+*-
+```
+
+Count the number of times the E4 string is plucked:
+
+```bash
+   $ extractx -g AT:E4 | ridx -H | sortcount -th
+```
+
+```
+**count	**data
+4	15
+3	12
+3	8
+2	17
+2	10
+2	13
+*-	*-
+!!TOTAL:	16
+```
+
+Plot a histogram of all frets used on all strings:
+
+```bash
+   $ extractx -i str | serialize | ridx -H | grep -v []_] |\
+	 sortcount -v  -T "Frets used" -x "fret number" > plot.html
+```
+
+Then open plot.html in a web browser to view the plot:
+
+<img width="833" alt="screen shot 2019-02-04 at 10 15 43 pm" src="https://user-images.githubusercontent.com/3487289/52251318-2f163480-28ca-11e9-972f-8fa6a4dd64c6.png">
+
+
+
+
 
 
